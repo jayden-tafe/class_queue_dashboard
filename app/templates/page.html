@@ -76,9 +76,10 @@
 
         socket.on('queue_update', async function (data) {
             const { queue, currentStudentNumber, currentTicketNumber, currentName, currentQuestion, awayFromDesk } = data;
+            const currentStudentString = currentName === "" ? "Nobody" : `${currentName} (${currentStudentNumber})`;
 
-            $('#current-student').text(`${currentName} (${currentStudentNumber})`);
-            $('#current-question').text(`${currentQuestion}`);
+            $('#current-student').text(currentStudentString);
+            $('#current-question').text(currentQuestion === "" ? "Nothing" : currentQuestion);
             $('#away').text(awayFromDesk ? "Toggle Off Away From Desk" : "Toggle On Away From Desk")
 
             const queueHTML = queue.map(function(item, index) {
