@@ -1,25 +1,13 @@
-from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO
-from flask_mqtt import Mqtt
+import json
+import os
+
 from dotenv import load_dotenv
-import random, time, os, json
+from flask import Flask, render_template, request, jsonify
+from flask_mqtt import Mqtt
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-
-names = [
-    "John",
-    "Bob",
-    "James",
-    "William",
-    "Jeremiah",
-    "Charles",
-    "Charlie",
-    "Clay",
-    "Chloe",
-    "Miranda"
-]
-
 load_dotenv('.env')
 
 AIO_USERNAME = os.environ.get('AIO_USERNAME')
