@@ -1,0 +1,17 @@
+{
+    "messageType": "update" | "cancel" | "next", (only listen to update, can send cancel/next)
+    "currentStudentNumber": string,
+    "currentTicketNumber": string,
+    "currentName": string,
+    "currentQuestion": string,
+    "awayFromDesk": bool,
+    "studentNumber": string, (only used for cancel/next messageTypes)
+    "queue": [
+        {
+            "studentNumber": string,
+            "ticketNumber": string,
+            "name": string,
+            "question": string,
+        }
+    ]
+}

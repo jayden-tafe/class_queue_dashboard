@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Class Queue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+    <script src="index.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        function kick(studentNumber) {
+            fetch('/kick', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    studentNumber
+                })
+            });
+        }
+
+        function forceNext(studentNumber) {
+            fetch('/force-next', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    studentNumber
+                })
+            });
+        }
+
+        function finishCurrent() {
+            fetch('/finish-current-student', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+        }
+
+        function callNext() {
+            fetch('/call-next-student', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+        }
+
+        function awayFromDesk() {
+            fetch('/away-from-desk', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+        }
+
+    $(document).ready(function() {
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.emit('fetch_queue');
+
+        socket.on('queue_update', async function (data) {
+            const { queue, currentStudentNumber, currentTicketNumber, currentName, currentQuestion, awayFromDesk } = data;
+
+            $('#current-student').text(`${currentName} (${currentStudentNumber})`);
+            $('#current-question').text(`${currentQuestion}`);
+            $('#away').text(awayFromDesk ? "Toggle Off Away From Desk" : "Toggle On Away From Desk")
+
+            const queueHTML = queue.map(function(item, index) {
+                const { ticketNumber, studentNumber, name, question  } = item;
+                    return  `<tr> ` +
+                            `<td class="py-4">${ticketNumber}</td> ` +
+                            '<td class="py-4"> ' +
+                            '<div class="flex flex-col items-center"> ' +
+                            `<span id="student-name" class="text-gray-800">${name}</span> ` +
+                            `<span id="student-id" class="text-xs text-gray-500">${studentNumber}</span> ` +
+                            '</div> ' +
+                            '</td> ' +
+                            `<td class="py-4">${question}</td> ` +
+                            '<td class="flex flex-row justify-center items-center gap-2 py-4"> ' +
+                            '<button ' +
+                            'class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition" ' +
+                            `onclick="forceNext(${studentNumber})" ` +
+                            '>Force Next</button> ' +
+                            '<button ' +
+                            'class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2 transition" ' +
+                            `onclick="kick(${studentNumber})" ` +
+                            '>Kick</button> ' +
+                            '</td> ' +
+                            '</tr> '
+            });
+
+            $('#queue-table').html(queueHTML);
+        });
+    });
+</script>
+
+    <div class="container mx-auto p-4">
+        <div id="current" class="flex flex-col text-center gap-4 bg-white p-6 rounded-lg shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                    <p class="text-4xl font-semibold text-blue-500">Current Student</p>
+                    <span id="current-student" class="text-xl text-gray-700"></span>
+                </div>
+                <div class="flex flex-col">
+                    <p class="text-4xl font-semibold text-blue-500">Current Question</p>
+                    <span id="current-question" class="text-xl text-gray-700"></span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <p class="text-4xl font-semibold text-blue-500">Actions</p>
+                <div class="flex flex-row items-center justify-center gap-2">
+                    <button 
+                        id="finish"
+                        class="bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2 transition"
+                        onclick="finishCurrent()"
+                    >Finish Current Question</button>
+                    <button 
+                        id="next"
+                        class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition"
+                        onclick="callNext()"
+                    >Call Next Student</button>
+                    <button 
+                        id="away"
+                        class="bg-neutral-500 hover:bg-neutral-600 text-white rounded-lg px-4 py-2 transition"
+                        onclick="awayFromDesk()"
+                    >Away From Desk</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="queue" class="mt-8 bg-white p-6 rounded-lg shadow-md">
+            <table class="table-auto w-full text-center">
+                <thead class="border-b-2 border-gray-200">
+                    <tr>
+                        <th class="py-2 text-gray-700">Ticket Number</th>
+                        <th class="py-2 text-gray-700">Student</th>
+                        <th class="py-2 text-gray-700">Question</th>
+                        <th class="py-2 text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="queue-table" class="divide-y divide-gray-200">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
