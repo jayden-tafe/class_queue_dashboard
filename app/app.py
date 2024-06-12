@@ -45,6 +45,8 @@ def handle_mqtt_message(client, userdata, message):
             current_next = queue[0]
             if current_next:
                 current_next_student_id = current_next['studentNumber']
+        else:
+            current_next_student_id = ""
         socketio.emit('queue_update', data)
 
 
